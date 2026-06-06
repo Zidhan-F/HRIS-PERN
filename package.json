@@ -9,6 +9,10 @@
     "client",
     "server"
   ],
+  "supportedArchitectures": {
+    "os": ["current", "linux"],
+    "cpu": ["current", "x64"]
+  },
   "scripts": {
     "build": "cd client && npm run build && cd .. && rm -rf dist && mv client/dist ./dist"
   }
