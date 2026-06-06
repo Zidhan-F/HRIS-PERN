@@ -21,7 +21,7 @@ async function getDynamicSetting(key, defaultValue) {
 // Submit Attendance
 router.post('/attendance/submit', authMiddleware, async (req, res) => {
   try {
-    const { lat, lng, type } = req.body;
+    const { lat, lng, type, image } = req.body;
     const clockType = type || 'clock_in';
     const now = new Date();
     const jakartaTime = now.toLocaleString('en-US', { timeZone: 'Asia/Jakarta', hour12: false });
@@ -44,9 +44,10 @@ router.post('/attendance/submit', authMiddleware, async (req, res) => {
     const absenBaru = await Attendance.create({
       userId: req.user.id, email: req.user.email, name: req.user.name,
       profilePicture: req.user.profilePicture, latitude: lat, longitude: lng, type: clockType,
+      image: image || null,
     });
 
-    res.status(200).json({ success: true, message: `Absensi ${req.user.name} berhasil dicatat!`, attendance: { email: req.user.email, name: req.user.name, latitude: lat, longitude: lng, type: clockType, timestamp: absenBaru.timestamp } });
+    res.status(200).json({ success: true, message: `Absensi ${req.user.name} berhasil dicatat!`, attendance: { email: req.user.email, name: req.user.name, latitude: lat, longitude: lng, type: clockType, timestamp: absenBaru.timestamp, image: absenBaru.image } });
   } catch (error) {
     console.error('Attendance error:', error.message);
     res.status(500).json({ success: false, message: 'Gagal mencatat absensi.' });
@@ -185,9 +186,16 @@ router.get('/attendance/summary/daily', authMiddleware, requireRole('admin', 'ma
     const reports = users.map(user => {
       const userAtt = attendanceMap[user.email.toLowerCase()] || [];
       let clockIn = null, clockOut = null;
+      let clockInImage = null, clockOutImage = null;
       userAtt.forEach(a => {
-        if (a.type === 'clock_in' && (!clockIn || new Date(a.timestamp) < new Date(clockIn))) clockIn = a.timestamp;
-        if (a.type === 'clock_out' && (!clockOut || new Date(a.timestamp) > new Date(clockOut))) clockOut = a.timestamp;
+        if (a.type === 'clock_in' && (!clockIn || new Date(a.timestamp) < new Date(clockIn))) {
+          clockIn = a.timestamp;
+          clockInImage = a.image;
+        }
+        if (a.type === 'clock_out' && (!clockOut || new Date(a.timestamp) > new Date(clockOut))) {
+          clockOut = a.timestamp;
+          clockOutImage = a.image;
+        }
       });
       let workHours = 0;
       if (clockIn && clockOut) workHours = Math.abs(new Date(clockOut) - new Date(clockIn)) / (1000 * 60 * 60);
@@ -201,7 +209,7 @@ router.get('/attendance/summary/daily', authMiddleware, requireRole('admin', 'ma
       let status = 'absent';
       if (clockIn && clockOut) status = 'complete';
       else if (clockIn) status = 'working';
-      return { id: user.id, name: user.name, email: user.email, position: user.position || 'Employee', department: user.department || '-', profilePicture: user.profilePicture || null, role: user.role, clockIn, clockOut, workHours: workHours.toFixed(2), isLate, status };
+      return { id: user.id, name: user.name, email: user.email, position: user.position || 'Employee', department: user.department || '-', profilePicture: user.profilePicture || null, role: user.role, clockIn, clockOut, clockInImage, clockOutImage, workHours: workHours.toFixed(2), isLate, status };
     });
     res.json({ success: true, reports, date: dateStr });
   } catch (error) {

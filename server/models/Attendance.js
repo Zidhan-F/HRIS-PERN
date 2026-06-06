@@ -22,6 +22,10 @@ const Attendance = sequelize.define('Attendance', {
     type: DataTypes.TEXT,
     field: 'profile_picture',
   },
+  image: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+  },
   latitude: {
     type: DataTypes.DECIMAL(10, 7),
   },

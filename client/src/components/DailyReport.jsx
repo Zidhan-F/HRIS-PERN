@@ -178,6 +178,14 @@ export default function DailyReport({
                             <span className="daily-time-badge in">
                               <span className="material-icons-outlined">login</span>
                               {formatTime(report.clockIn)}
+                              {report.clockInImage && (
+                                <span className="attendance-camera-preview-icon" title="View Clock In Photo">
+                                  <span className="material-icons-outlined" style={{ fontSize: '14px', marginLeft: '4px', verticalAlign: 'middle', cursor: 'pointer', color: '#10b981' }}>photo_camera</span>
+                                  <span className="attendance-camera-preview-tooltip">
+                                    <img src={report.clockInImage} alt="Clock In Verification" />
+                                  </span>
+                                </span>
+                              )}
                             </span>
                             {report.isLate && <span className="daily-late-tag">LATE</span>}
                           </div>
@@ -190,6 +198,14 @@ export default function DailyReport({
                           <span className="daily-time-badge out">
                             <span className="material-icons-outlined">logout</span>
                             {formatTime(report.clockOut)}
+                            {report.clockOutImage && (
+                              <span className="attendance-camera-preview-icon" title="View Clock Out Photo">
+                                <span className="material-icons-outlined" style={{ fontSize: '14px', marginLeft: '4px', verticalAlign: 'middle', cursor: 'pointer', color: '#3b82f6' }}>photo_camera</span>
+                                <span className="attendance-camera-preview-tooltip">
+                                  <img src={report.clockOutImage} alt="Clock Out Verification" />
+                                </span>
+                              </span>
+                            )}
                           </span>
                         ) : (
                           <span className="daily-no-record">—</span>

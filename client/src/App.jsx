@@ -336,7 +336,7 @@ function App() {
     }
     setClockLoading(true); setStatusMsg(null);
     try {
-      const result = await axios.post(`${API_URL}/api/attendance/submit`, { lat: userLocation.lat, lng: userLocation.lng, type });
+      const result = await axios.post(`${API_URL}/api/attendance/submit`, { lat: userLocation.lat, lng: userLocation.lng, type, image: photo });
       if (result.data.success) {
         setStatusMsg({ type: 'success', text: `${type === 'clock_in' ? '🟢 Clock In' : '🔴 Clock Out'} berhasil dicatat!` });
         fetchHistory(user.email); setTimeout(() => setCapturedPhoto(null), 3000);
