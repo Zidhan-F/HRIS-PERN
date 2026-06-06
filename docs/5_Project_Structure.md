@@ -1,6 +1,6 @@
 # Project Structure Template
 ## EMS — Employee Management System
-**Last Updated:** 17 April 2026
+**Last Updated:** 28 Mei 2026
 
 ---
 
@@ -9,136 +9,132 @@
 ```
 hris-project/
 ├── 📁 client/                          # Frontend (React SPA)
-│   ├── 📁 public/                      # Static assets
+│   ├── 📁 public/
 │   ├── 📁 src/
-│   │   ├── 📁 assets/                  # Images & icons
-│   │   │   ├── hero.png                # Hero/landing image
-│   │   │   ├── react.svg               # React logo
-│   │   │   └── vite.svg                # Vite logo
-│   │   │
 │   │   ├── 📁 components/              # Modular UI components
 │   │   │   ├── 📁 modals/              # Modal dialogs
-│   │   │   │   ├── EditEmployeeModal.jsx    # Admin: manage employee
-│   │   │   │   ├── EditPayrollModal.jsx     # Admin: edit payroll
-│   │   │   │   ├── EditProfileModal.jsx     # Self: edit profile
-│   │   │   │   ├── OfficeSettingsModal.jsx  # Admin: office location
-│   │   │   │   └── RequestModal.jsx         # Submit leave/request
-│   │   │   │
-│   │   │   ├── AttendancePersonal.jsx  # Personal attendance records
-│   │   │   ├── AttendanceReport.jsx    # Monthly report (admin)
-│   │   │   ├── Dashboard.jsx           # Dashboard (Feed + MyInfo)
-│   │   │   ├── EmployeeView.jsx        # Employee list & detail
-│   │   │   ├── LeaveView.jsx           # Leave requests & approvals
-│   │   │   ├── LoginPage.jsx           # Google OAuth login
-│   │   │   ├── PayrollView.jsx         # Payslip & payroll mgmt
-│   │   │   ├── ProfileView.jsx         # User profile tabs
-│   │   │   ├── ScheduleView.jsx        # Calendar with holidays
-│   │   │   ├── Sidebar.jsx             # Navigation sidebar
-│   │   │   └── TopNavbar.jsx           # Top header bar
-│   │   │
+│   │   │   │   ├── EditEmployeeModal.jsx
+│   │   │   │   ├── EditPayrollModal.jsx
+│   │   │   │   ├── EditProfileModal.jsx
+│   │   │   │   ├── OfficeSettingsModal.jsx
+│   │   │   │   └── RequestModal.jsx
+│   │   │   ├── AttendancePersonal.jsx   # Riwayat absensi personal
+│   │   │   ├── AttendanceReport.jsx     # Laporan absensi bulanan
+│   │   │   ├── DailyReport.jsx          # Laporan absensi harian
+│   │   │   ├── Dashboard.jsx            # Dashboard utama (Feed + My Info)
+│   │   │   ├── EmployeeView.jsx         # Manajemen karyawan
+│   │   │   ├── LeaveView.jsx            # Permohonan & approval cuti
+│   │   │   ├── LoginPage.jsx            # Login Google OAuth
+│   │   │   ├── PayrollView.jsx          # Manajemen payroll
+│   │   │   ├── ProfileView.jsx          # Profil karyawan
+│   │   │   ├── ScheduleView.jsx         # Kalender & hari libur
+│   │   │   ├── Sidebar.jsx              # Navigasi sidebar
+│   │   │   └── TopNavbar.jsx            # Navbar atas
 │   │   ├── 📁 utils/                   # Shared utilities
-│   │   │   └── helpers.js              # Constants, formatters, Haversine
-│   │   │
+│   │   │   └── helpers.js               # Constants, formatters, calculations
 │   │   ├── App.jsx                     # Root coordinator (state + routing)
 │   │   ├── App.css                     # Global styles & design system
 │   │   ├── index.css                   # Base CSS reset
 │   │   └── main.jsx                    # React entry point
-│   │
 │   ├── .env                            # Frontend environment variables
 │   ├── index.html                      # HTML template
 │   ├── package.json                    # Frontend dependencies
 │   └── vite.config.js                  # Vite build configuration
 │
-├── 📁 server/                          # Backend (Express.js)
-│   ├── 📁 models/                      # Mongoose schemas
-│   │   ├── User.js                     # User collection schema
-│   │   ├── Request.js                  # Request collection schema
-│   │   └── PayrollLog.js               # Audit log for payroll actions
+├── 📁 server/                          # Backend (Express.js + Sequelize)
+│   ├── 📁 models/                      # Sequelize models (8 file)
+│   │   ├── Attendance.js               # Tabel attendances
+│   │   ├── Payroll.js                  # Tabel payrolls (kalkulasi gaji)
+│   │   ├── PayrollLog.js               # Tabel payroll_logs (audit trail)
+│   │   ├── PayrollSettings.js          # Tabel payroll_settings (config global)
+│   │   ├── Request.js                  # Tabel requests (cuti/izin)
+│   │   ├── Settings.js                 # Tabel settings (key-value store)
+│   │   ├── TeamMember.js               # Tabel team_members
+│   │   ├── User.js                     # Tabel users (karyawan)
+│   │   └── index.js                    # Define associations (Relasi antar tabel)
 │   │
-│   ├── 📁 services/                    # Background logic
-│   │   ├── cronJobs.js                 # Automation (reminders, payroll)
-│   │   ├── payrollEngine.js            # Salary calculation logic
-│   │   ├── pdfGenerator.js             # Payslip PDF generation
-│   │   └── emailService.js             # SMTP/Email sending
+│   ├── 📁 routes/                      # Express route modules (6 file)
+│   │   ├── auth.js                     # POST /api/auth/google
+│   │   ├── attendance.js               # /api/attendance/* endpoints
+│   │   ├── employees.js                # /api/employees/* endpoints
+│   │   ├── payroll.js                  # /api/payroll/* endpoints
+│   │   ├── requests.js                 # /api/requests/* endpoints
+│   │   └── settings.js                 # /api/settings/* endpoints
 │   │
-│   ├── index.js                        # Server entry (routes, middleware, inline models)
+│   ├── 📁 middleware/                  # Express middleware
+│   │   └── auth.js                     # authMiddleware + requireRole
+│   │
+│   ├── 📁 helpers/                     # Utility functions
+│   │   └── validation.js               # Input validators (profile, employee, payroll, request)
+│   │
+│   ├── 📁 services/                    # Background logic & external integrations
+│   │   ├── cronJobs.js                 # Automation (attendance reminder, payroll calc)
+│   │   ├── payrollEngine.js            # Salary calculation logic & bank transfer export
+│   │   ├── pdfGenerator.js             # Payslip PDF generation (PDFKit)
+│   │   └── emailService.js             # SMTP/Email sending (Nodemailer)
+│   │
+│   ├── index.js                        # Server entry (routes, middleware, DB sync)
+│   ├── db.js                           # Sequelize Database Connection Setup
 │   ├── .env                            # Backend environment variables
 │   ├── package.json                    # Backend dependencies
 │   └── Dockerfile                      # Server container definition
 │
-├── 📁 scripts/                         # Maintenance scripts
-│   └── backup.ps1                      # DB Backup to local storage
-│
-├── .gitignore                          # Git ignore rules
-├── README.md                           # Project readme
-├── package.json                        # Root package.json (optional monorepo)
+├── 📁 docs/                            # Project documentation
 ├── docker-compose.yml                  # Full stack orchestration
-└── Dockerfile                          # Root or Frontend Dockerfile
+├── render.yaml                         # Render.com deployment config
+├── vercel.json                         # Vercel serverless config
+└── README.md                           # Project readme
 ```
 
 ---
 
 ## Component Responsibility Map
 
-### Views (11 components)
+### View Components (12 komponen)
 
-| Component | File | Renders When | Key Props |
-|-----------|------|-------------|-----------|
-| `LoginPage` | `LoginPage.jsx` | `user === null` | loading, handleLoginSuccess |
-| `Dashboard` | `Dashboard.jsx` | `activeMenu === 'dashboard'` | user, currentTime, officeSettings, videoRef, history |
-| `ProfileView` | `ProfileView.jsx` | `activeMenu === 'profile'` | user, profileTab, handleStartEdit |
-| `EmployeeView` | `EmployeeView.jsx` | `activeMenu === 'employee'` | employees, selectedEmployee, handleEditEmployee |
-| `PayrollView` | `PayrollView.jsx` | `activeMenu === 'payroll'` | user, employees, payrollTab |
-| `LeaveView` | `LeaveView.jsx` | `activeMenu === 'leave'` | requests, pendingRequests, handleApproveRequest |
-| `AttendancePersonal` | `AttendancePersonal.jsx` | `activeSubMenu === 'att-personal'` | personalAttendance, selectedMonth/Year |
-| `AttendanceReport` | `AttendanceReport.jsx` | `activeSubMenu === 'att-report'` | monthlyReports, reportMonth/Year |
-| `ScheduleView` | `ScheduleView.jsx` | `activeSubMenu === 'att-schedule'` | schedDate, scheduleHolidays |
-| `Sidebar` | `Sidebar.jsx` | Always (when logged in) | sidebarOpen, activeMenu, handleMenuClick |
-| `TopNavbar` | `TopNavbar.jsx` | Always (when logged in) | user, handleLogout |
+| Komponen | Akses | Fungsi Utama |
+|----------|-------|-------------|
+| `LoginPage` | Public | Login via Google OAuth 2.0 |
+| `Sidebar` | All | Navigasi menu dengan sub-menu (attendance) |
+| `TopNavbar` | All | Header bar, hamburger, user info, logout |
+| `Dashboard` | All | Feed (on-leave, recent activities) + My Info (GPS, Camera, Clock) |
+| `ProfileView` | All | Lihat/edit profil pribadi (Personal, Contract, Team) |
+| `EmployeeView` | Admin/HRD/Manager | Daftar karyawan, detail, edit posisi/department |
+| `PayrollView` | All | My Payslip (employee) + Manage Payroll (admin/HRD) |
+| `LeaveView` | All | Riwayat permohonan + Approval (admin/manager) |
+| `AttendancePersonal` | All | Riwayat absensi per bulan milik sendiri |
+| `AttendanceReport` | Admin/HRD/Manager | Laporan kehadiran bulanan seluruh karyawan |
+| `DailyReport` | Admin/HRD/Manager | Laporan kehadiran per tanggal |
+| `ScheduleView` | All | Kalender bulanan + hari libur nasional |
 
-### Modals (5 components)
+### Modal Components (5 komponen)
 
-| Component | File | Triggered By | Key Props |
-|-----------|------|-------------|-----------|
-| `EditProfileModal` | `EditProfileModal.jsx` | "Edit Profile" button | editFormData, handleSaveProfile |
-| `RequestModal` | `RequestModal.jsx` | Leave/Request type card | selectedRequestType, handleRequestSubmit |
-| `EditEmployeeModal` | `EditEmployeeModal.jsx` | "Edit Details" on employee | editEmployeeData, handleSaveEmployee |
-| `OfficeSettingsModal` | `OfficeSettingsModal.jsx` | Settings icon on map | editOfficeData, setOfficeSettings |
-| `EditPayrollModal` | `EditPayrollModal.jsx` | Edit icon on payroll row | editPayrollData, handleSavePayroll |
-
-### Utilities
-
-| File | Exports | Description |
-|------|---------|-------------|
-| `helpers.js` | `API_URL`, `DEFAULT_OFFICE`, `MENU_ITEMS`, `WELCOME_MESSAGES` | App constants |
-| | `getDistanceMeters()` | Haversine formula for GPS radius |
-| | `groupAttendanceByDay()` | Process attendance into daily records |
-| | `getInitials()`, `getGreeting()`, `getRequestIcon()` | UI helpers |
-| | `formatTime()`, `formatDate()`, `formatTimestamp()`, `formatCurrency()` | Formatters |
-| | `safeISO()` | Safe date-to-ISO conversion |
+| Komponen | Trigger | Fungsi |
+|----------|---------|--------|
+| `EditProfileModal` | ProfileView | Edit profil (nama, telepon, bio, dll) |
+| `EditEmployeeModal` | EmployeeView | Edit posisi, role, team members |
+| `EditPayrollModal` | PayrollView | Edit gaji, bank, BPJS, PPh21 |
+| `OfficeSettingsModal` | Dashboard | Edit lokasi kantor & hari kerja |
+| `RequestModal` | LeaveView | Pengajuan cuti/izin/lembur/reimburse |
 
 ---
 
 ## Backend Route Organization
 
-[index.js](file:///c:/Users/Zidhan/OneDrive/Documents/hris-project/server/index.js) structure (1056 lines):
+Routing didefinisikan di `server/index.js` dan didelegasikan ke modul-modul di `server/routes/`:
 
-| Section | Lines (approx) | Description |
-|---------|----------------|-------------|
-| Security Middleware | 1–76 | Helmet, CORS, Rate Limit, HTTPS |
-| Database Connection | 78–83 | MongoDB Atlas via Mongoose |
-| Inline Models | 85–101 | Attendance & Settings schemas |
-| Security Helpers | 103–117 | `escapeRegex()`, `emailQuery()` |
-| Auth Middleware | 119–170 | `verifyGoogleToken()`, `authMiddleware()`, `requireRole()` |
-| Input Validators | 172–237 | 4 validation functions |
-| Auth Endpoint | 239–340 | Google login + upsert |
-| Profile Endpoint | 342–380 | Self-profile update |
-| Attendance Endpoints | 382–555 | Submit, history, summary |
-| Employee Endpoints | 557–780 | CRUD, payroll update |
-| Request Endpoints | 782–950 | CRUD, approval, active-leave |
-| Settings Endpoints | 952–1020 | Office location, workdays |
-| Schedule Endpoint | 1022–1050 | iCal holidays |
-| Server Start | 1052–1056 | `app.listen()` |
+| Mount Path | Route File | Deskripsi |
+|------------|-----------|-----------|
+| `/api` | `routes/auth.js` | Authentication (Google OAuth) |
+| `/api` | `routes/attendance.js` | Absensi (submit, history, summary) |
+| `/api/employees` | `routes/employees.js` | Manajemen karyawan |
+| `/api/requests` | `routes/requests.js` | Permohonan cuti/izin |
+| `/api/payroll` | `routes/payroll.js` | Manajemen payroll |
+| `/api/settings` | `routes/settings.js` | Pengaturan kantor & payroll |
+
+Dua endpoint tambahan didefinisikan langsung di `index.js`:
+- `PUT /api/users/profile` — Update profil pribadi
+- `GET /api/schedule/holidays` — Ambil hari libur nasional via iCal
 
 ---
 
@@ -148,23 +144,22 @@ hris-project/
 ```js
 export default defineConfig({
   plugins: [react()],
-  // Optional: proxy for development
-  // server: { proxy: { '/api': 'http://localhost:5000' } }
 })
+```
+
+### `.env` (Server)
+```
+PORT=5000
+DATABASE_URL=postgres://user:password@localhost:5432/ems_db
+GOOGLE_CLIENT_ID=your-google-client-id
+FRONTEND_URL=https://your-frontend.vercel.app
+ENABLE_CRON=true
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASS=your-app-password
 ```
 
 ### `.env` (Client)
 ```
 VITE_API_URL=http://localhost:5000
 VITE_GOOGLE_CLIENT_ID=your-google-client-id
-```
-
-### `.env` (Server)
-```
-PORT=5000
-MONGO_URI=mongodb+srv://...
-GOOGLE_CLIENT_ID=your-google-client-id
-FRONTEND_URL=http://localhost:5173
-ALLOW_OPEN_REGISTRATION=true
-NODE_ENV=development
 ```

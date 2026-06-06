@@ -1,29 +1,31 @@
-# HRIS Project
+# HRIS Project — PERN Stack
 
-Human Resources Information System (HRIS) berbasis EMS dengan monorepo React + Express + MongoDB.
+Human Resources Information System (HRIS) berbasis EMS dengan monorepo React + Express + PostgreSQL (Sequelize).
 
 ## Ringkasan
 
 Proyek ini terdiri dari:
 - `client/`: Frontend React dengan Vite, Google OAuth, peta Leaflet, dan fitur absensi.
-- `server/`: Backend Express dengan MongoDB, Mongoose, Google OAuth verification, absensi, riwayat, dan ringkasan hari ini.
-- `docker-compose.yml`: Konfigurasi MongoDB, backend, dan frontend untuk pengembangan container.
+- `server/`: Backend Express dengan PostgreSQL, Sequelize ORM, Google OAuth verification, absensi, riwayat, payroll automation, dan laporan.
+- `docker-compose.yml`: Konfigurasi PostgreSQL database, backend, dan frontend untuk pengembangan container.
 
 ## Fitur Utama
 
 - Login Google OAuth
-- Absensi kehadiran dengan lokasi GPS
+- Absensi kehadiran dengan lokasi GPS (Radius Geofencing)
 - Riwayat absensi dan ringkasan kehadiran harian
 - Dashboard karyawan dengan manajemen profil
-- Request jenis cuti, izin, sakit, lembur, reimburse, dan lain-lain
-- Backend MongoDB + Express + Mongoose
+- Request jenis cuti, izin, sakit, lembur, reimburse, dll
+- Kalkulasi payroll otomatis, slip gaji PDF (PDFKit), dan email blast (Nodemailer)
+- Export bank transfer file (BCA CSV & Mandiri TXT)
+- Backend PostgreSQL + Sequelize ORM + Express
 - Frontend React + Vite + Leaflet
 
 ## Struktur Proyek
 
-- `client/` - Frontend
-- `server/` - Backend
-- `docker-compose.yml` - Layanan MongoDB, backend, frontend
+- `client/` - Frontend (React SPA)
+- `server/` - Backend (Express.js + Sequelize)
+- `docker-compose.yml` - Layanan PostgreSQL database, backend, frontend
 - `package.json` - Skrip build monorepo
 
 ## Persiapan Lingkungan
@@ -50,11 +52,19 @@ Buat file `.env` di `server/` dengan variabel berikut:
 
 ```env
 PORT=5000
-MONGO_URI=<mongodb_connection_string>
+DATABASE_URL=postgres://postgres:password@localhost:5432/ems_db
 GOOGLE_CLIENT_ID=<your_google_oauth_client_id>
+GOOGLE_CLIENT_SECRET=<your_google_oauth_client_secret>
+FRONTEND_URL=http://localhost:5173
+ALLOW_OPEN_REGISTRATION=true
+ENABLE_CRON=true
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=<your_email@gmail.com>
+SMTP_PASS=<your_app_password>
 ```
 
-Jika menggunakan Docker Compose, file `.env` server akan dimuat secara otomatis.
+Jika menggunakan Docker Compose, environment database di `docker-compose.yml` akan terkonfigurasi otomatis.
 
 ## Menjalankan Aplikasi
 
@@ -66,9 +76,11 @@ docker-compose up --build
 
 - Backend tersedia di `http://localhost:5000`
 - Frontend tersedia di `http://localhost:5173`
-- MongoDB tersedia di `mongodb://localhost:27018`
+- PostgreSQL tersedia di `localhost:5432`
 
 ### Pilihan 2: Jalankan lokal manual
+
+Pastikan PostgreSQL server Anda sudah berjalan dan database `ems_db` sudah dibuat sebelum menjalankan server backend.
 
 Backend:
 ```bash
@@ -91,12 +103,6 @@ npm run build
 ```
 
 Skrip ini akan membangun frontend dan memindahkan hasilnya ke direktori `dist`.
-
-## Catatan
-
-- Pastikan `GOOGLE_CLIENT_ID` dikonfigurasi untuk login OAuth Google.
-- `MONGO_URI` harus menunjuk ke instance MongoDB yang dapat diakses.
-- Frontend menggunakan `VITE_API_URL` untuk koneksi API jika diperlukan.
 
 ## Kontak
 

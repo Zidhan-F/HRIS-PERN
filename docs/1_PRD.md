@@ -1,14 +1,14 @@
 # Product Requirements Document (PRD)
 ## EMS — Employee Management System
-**Version:** 2.0 (Post-Refactoring)
-**Last Updated:** 17 April 2026
+**Version:** 3.0 (Post-Refactoring PERN Stack)
+**Last Updated:** 28 Mei 2026
 **Author:** Zidhan F
 
 ---
 
 ## 1. Executive Summary
 
-EMS (Employee Management System) adalah aplikasi web HRIS berbasis cloud yang dirancang untuk mengelola data karyawan, absensi, cuti, payroll, dan jadwal secara terpusat. Aplikasi ini menggunakan arsitektur **Single Page Application (SPA)** dengan autentikasi Google OAuth 2.0 dan geolocation-based attendance system.
+EMS (Employee Management System) adalah aplikasi web HRIS berbasis cloud yang dirancang untuk mengelola data karyawan, absensi, cuti, payroll, dan jadwal secara terpusat. Aplikasi ini menggunakan arsitektur **Single Page Application (SPA)** dengan autentikasi Google OAuth 2.0 dan geolocation-based attendance system, didukung oleh stack **PERN (PostgreSQL, Express.js, React.js, Node.js)**.
 
 ---
 
@@ -19,7 +19,7 @@ Perusahaan membutuhkan sistem terpadu untuk:
 - Mencatat absensi berbasis lokasi GPS dengan verifikasi radius kantor
 - Mengotomasi alur pengajuan cuti, izin, dan reimbursement
 - Menyediakan laporan kehadiran bulanan yang akurat
-- Mengelola payroll dengan transparansi penuh
+- Mengelola payroll dengan transparansi penuh dan skalabilitas data yang kuat.
 
 ---
 
@@ -79,7 +79,7 @@ Perusahaan membutuhkan sistem terpadu untuk:
 ### 4.6 Payroll Management
 - **My Payslip**: Tampilan slip gaji dengan branding perusahaan, printable
 - **Manage Payroll** (Admin/HRD): 
-  - Edit gaji pokok, tunjangan, rekening bank
+  - Edit gaji pokok, tunjangan, potongan BPJS, rekening bank
   - Status pembayaran (Paid/Unpaid)
   - Total pengeluaran seluruh karyawan
   - **Bulk Actions**: Finalize all, Mark all as Paid, Send PDF Emails via cron
@@ -97,7 +97,7 @@ Perusahaan membutuhkan sistem terpadu untuk:
 - Contract end date tracking dengan visual warning
 
 ### 4.9 Automation & Maintenance
-- **Database Backup**: Sistem pencadangan database `ems_db` otomatis/manual ke storage lokal
+- **Database Backup**: Sistem pencadangan database PostgreSQL otomatis/manual ke storage lokal
 - **Cron Jobs**:
   - Pengecekan status kehadiran harian (Attendance Reminder) pukul 08:30 WIB
   - Kalkulasi payroll otomatis setiap tanggal 25
@@ -110,7 +110,7 @@ Perusahaan membutuhkan sistem terpadu untuk:
 | Aspek | Requirement |
 |-------|-------------|
 | **Performance** | Build production < 1 detik; Bundle JS < 500KB gzipped |
-| **Security** | Helmet headers, CORS whitelist, Rate limiting, NoSQL injection protection |
+| **Security** | Helmet headers, CORS whitelist, Rate limiting, SQL injection protection |
 | **Availability** | Support deployment ke cloud (Render, Vercel, Railway) |
 | **Browser** | Chrome, Firefox, Edge, Safari (Mobile & Desktop) |
 | **Responsiveness** | Responsive design untuk mobile & tablet |
@@ -127,7 +127,7 @@ Perusahaan membutuhkan sistem terpadu untuk:
 | Auth | Google OAuth 2.0 (@react-oauth/google) |
 | HTTP | Axios (with interceptor) |
 | Backend | Node.js + Express.js |
-| Database | MongoDB (Dockerized) + Mongoose |
+| Database | **PostgreSQL + Sequelize ORM** |
 | Security | Helmet, express-rate-limit, CORS |
 | Calendar | node-ical (holiday integration) |
 | Automation | node-cron (attendance reminders, payroll calculation) |
