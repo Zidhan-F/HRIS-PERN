@@ -5,7 +5,11 @@
   "engines": {
     "node": "22.x"
   },
+  "workspaces": [
+    "client",
+    "server"
+  ],
   "scripts": {
-    "build": "cd client && npm install --include=dev && npm run build && cd .. && rm -rf dist && mv client/dist ./dist"
+    "build": "cd client && npm run build && cd .. && rm -rf dist && mv client/dist ./dist"
   }
 }
