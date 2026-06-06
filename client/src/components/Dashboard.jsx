@@ -15,7 +15,7 @@ export default function Dashboard({
   // My Info
   officeSettings, userLocation, locationStatus, distanceToOffice,
   cameraStatus, capturedPhoto, videoRef, canvasRef,
-  setEditOfficeData, setShowOfficeModal,
+  setEditOfficeData, setShowOfficeModal, setShowTimeModal,
   // Clock
   clockLoading, statusMsg, handleClock, history, formatTimestampFn,
 }) {
@@ -200,8 +200,20 @@ export default function Dashboard({
 
           {/* 3. Clock Card */}
           <div className="attendance-card animate-fadeInScale" style={{ animationDelay: '0.2s' }}>
-            <p className="attendance-time">{formatTime(currentTime)}</p>
-            <p className="attendance-date">{formatDate(currentTime)}</p>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
+              <p className="attendance-time" style={{ margin: 0 }}>{formatTime(currentTime)}</p>
+              {['admin', 'hrd'].includes(user?.role) && (
+                <button 
+                  className="nav-icon-btn" 
+                  style={{ width: '32px', height: '32px' }} 
+                  onClick={() => { setEditOfficeData(officeSettings); setShowTimeModal(true); }} 
+                  title="Configure Attendance Time Settings"
+                >
+                  <span className="material-icons-outlined" style={{ fontSize: '18px' }}>settings</span>
+                </button>
+              )}
+            </div>
+            <p className="attendance-date" style={{ marginTop: '5px' }}>{formatDate(currentTime)}</p>
             <div className="attendance-buttons">
               <button 
                 className="btn-clock btn-clock-in" 

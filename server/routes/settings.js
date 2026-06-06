@@ -8,25 +8,40 @@ const { RATES } = require('../services/payrollEngine');
 router.get('/office', authMiddleware, async (req, res) => {
   try {
     const setting = await Settings.findOne({ where: { key: 'office_location' } });
-    if (!setting) return res.json({ success: true, data: { lat: -6.1528, lng: 106.7909, radius: 100, name: 'EMS Office' } });
-    res.json({ success: true, data: setting.value });
+    if (!setting) return res.json({ success: true, data: { lat: -6.1528, lng: 106.7909, radius: 100, name: 'EMS Office', clockInStart: '07:00', clockInLimit: '08:00', lateThreshold: '09:15', clockOutMin: '17:00' } });
+    
+    // Ensure all config keys exist (merge with defaults if missing)
+    const mergedData = {
+      lat: -6.1528, lng: 106.7909, radius: 100, name: 'EMS Office', clockInStart: '07:00', clockInLimit: '08:00', lateThreshold: '09:15', clockOutMin: '17:00',
+      ...setting.value
+    };
+    res.json({ success: true, data: mergedData });
   } catch (error) { res.status(500).json({ success: false, message: 'Failed to get settings.' }); }
 });
 
 // PUT Office Settings
 router.put('/office', authMiddleware, requireRole('admin', 'hrd'), async (req, res) => {
   try {
-    const { lat, lng, radius, name } = req.body;
+    const { lat, lng, radius, name, clockInStart, clockInLimit, lateThreshold, clockOutMin } = req.body;
     const parsedLat = parseFloat(lat), parsedLng = parseFloat(lng), parsedRadius = parseInt(radius) || 100;
     if (isNaN(parsedLat) || isNaN(parsedLng) || parsedLat < -90 || parsedLat > 90 || parsedLng < -180 || parsedLng > 180)
       return res.status(400).json({ success: false, message: 'Koordinat tidak valid.' });
     if (parsedRadius < 10 || parsedRadius > 5000)
       return res.status(400).json({ success: false, message: 'Radius harus antara 10-5000 meter.' });
 
-    const value = { lat: parsedLat, lng: parsedLng, radius: parsedRadius, name: name || 'EMS Office' };
+    const value = {
+      lat: parsedLat,
+      lng: parsedLng,
+      radius: parsedRadius,
+      name: name || 'EMS Office',
+      clockInStart: clockInStart || '07:00',
+      clockInLimit: clockInLimit || '08:00',
+      lateThreshold: lateThreshold || '09:15',
+      clockOutMin: clockOutMin || '17:00'
+    };
     await Settings.upsert({ key: 'office_location', value, updatedAt: new Date() });
-    console.log(`[SETTINGS] Office location updated: ${name} (${parsedLat}, ${parsedLng}) R:${parsedRadius}`);
-    res.json({ success: true, message: 'Lokasi kantor diperbarui!', data: value });
+    console.log(`[SETTINGS] Office location & rules updated: ${name} (${parsedLat}, ${parsedLng}) R:${parsedRadius}`);
+    res.json({ success: true, message: 'Lokasi dan aturan absensi kantor diperbarui!', data: value });
   } catch (error) { res.status(500).json({ success: false, message: 'Failed to update settings.' }); }
 });
 

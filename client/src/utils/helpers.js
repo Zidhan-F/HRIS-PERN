@@ -1,7 +1,7 @@
 import L from 'leaflet';
 
 // Default office location (will be overridden by DB settings)
-export const DEFAULT_OFFICE = { lat: -6.1528, lng: 106.7909, radius: 100, name: 'EMS Office' };
+export const DEFAULT_OFFICE = { lat: -6.1528, lng: 106.7909, radius: 100, name: 'EMS Office', clockInStart: '07:00', clockInLimit: '08:00', lateThreshold: '09:15', clockOutMin: '17:00' };
 
 // Fix Leaflet default marker icon issue with bundlers
 delete L.Icon.Default.prototype._getIconUrl;

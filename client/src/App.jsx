@@ -24,6 +24,7 @@ import EditProfileModal from './components/modals/EditProfileModal';
 import RequestModal from './components/modals/RequestModal';
 import EditEmployeeModal from './components/modals/EditEmployeeModal';
 import OfficeSettingsModal from './components/modals/OfficeSettingsModal';
+import AttendanceTimeModal from './components/modals/AttendanceTimeModal';
 import EditPayrollModal from './components/modals/EditPayrollModal';
 
 function App() {
@@ -72,6 +73,7 @@ function App() {
   // Camera & Geolocation States
   const [officeSettings, setOfficeSettings] = useState(DEFAULT_OFFICE);
   const [showOfficeModal, setShowOfficeModal] = useState(false);
+  const [showTimeModal, setShowTimeModal] = useState(false);
   const [editOfficeData, setEditOfficeData] = useState(DEFAULT_OFFICE);
   const [userLocation, setUserLocation] = useState(null);
   const [locationStatus, setLocationStatus] = useState('loading');
@@ -323,9 +325,33 @@ function App() {
 
   const handleClock = async (type) => {
     if (!token || !user) return;
-    const now = new Date(); const currentHour = now.getHours();
-    if (type === 'clock_in' && currentHour < 8) { setStatusMsg({ type: 'error', text: 'Absensi masuk baru dibuka jam 08:00 pagi.' }); return; }
-    if (type === 'clock_out' && currentHour < 17) { alert('Maaf, absen pulang belum bisa dilakukan. Absen harus sesuai jam pulang (setelah jam 05:00 sore).'); setStatusMsg({ type: 'error', text: 'Absensi keluar baru bisa jam 05:00 sore.' }); return; }
+    const now = new Date();
+    const jakartaTime = now.toLocaleString('en-US', { timeZone: 'Asia/Jakarta', hour12: false });
+    const timePart = jakartaTime.split(', ')[1];
+    if (timePart) {
+      const [h, m] = timePart.split(':').map(Number);
+      const currentMinutes = h * 60 + m;
+
+      if (type === 'clock_in') {
+        const [startH, startM] = (officeSettings.clockInStart || '07:00').split(':').map(Number);
+        const startMinutes = startH * 60 + startM;
+        if (currentMinutes < startMinutes) {
+          setStatusMsg({ type: 'error', text: `Absensi masuk baru dibuka jam ${officeSettings.clockInStart || '07:00'} pagi.` });
+          return;
+        }
+      }
+
+      if (type === 'clock_out') {
+        const [outMinH, outMinM] = (officeSettings.clockOutMin || '17:00').split(':').map(Number);
+        const outMinMinutes = outMinH * 60 + outMinM;
+        if (currentMinutes < outMinMinutes) {
+          alert(`Maaf, absen pulang belum bisa dilakukan. Absen harus sesuai jam pulang (setelah jam ${officeSettings.clockOutMin || '17:00'}).`);
+          setStatusMsg({ type: 'error', text: `Absensi keluar baru bisa jam ${officeSettings.clockOutMin || '17:00'}.` });
+          return;
+        }
+      }
+    }
+
     if (!userLocation) { setStatusMsg({ type: 'error', text: 'Lokasi belum terdeteksi. Aktifkan GPS Anda.' }); return; }
     if (distanceToOffice > officeSettings.radius) { setStatusMsg({ type: 'error', text: `Anda di luar radius kantor (${distanceToOffice}m). Maksimal ${officeSettings.radius}m.` }); return; }
     const photo = capturePhoto();
@@ -655,7 +681,7 @@ function App() {
 
       <main className="dashboard-content">
         {activeMenu === 'dashboard' && (
-          <Dashboard user={user} currentTime={currentTime} welcomeIndex={welcomeIndex} attendanceSummary={attendanceSummary} activeTab={activeTab} setActiveTab={setActiveTab} onLeaveToday={onLeaveToday} recentActivities={recentActivities} handleDashboardViewMore={handleDashboardViewMore} officeSettings={officeSettings} userLocation={userLocation} locationStatus={locationStatus} distanceToOffice={distanceToOffice} cameraStatus={cameraStatus} capturedPhoto={capturedPhoto} videoRef={videoRef} canvasRef={canvasRef} setEditOfficeData={setEditOfficeData} setShowOfficeModal={setShowOfficeModal} clockLoading={clockLoading} statusMsg={statusMsg} handleClock={handleClock} history={history} />
+          <Dashboard user={user} currentTime={currentTime} welcomeIndex={welcomeIndex} attendanceSummary={attendanceSummary} activeTab={activeTab} setActiveTab={setActiveTab} onLeaveToday={onLeaveToday} recentActivities={recentActivities} handleDashboardViewMore={handleDashboardViewMore} officeSettings={officeSettings} userLocation={userLocation} locationStatus={locationStatus} distanceToOffice={distanceToOffice} cameraStatus={cameraStatus} capturedPhoto={capturedPhoto} videoRef={videoRef} canvasRef={canvasRef} setEditOfficeData={setEditOfficeData} setShowOfficeModal={setShowOfficeModal} setShowTimeModal={setShowTimeModal} clockLoading={clockLoading} statusMsg={statusMsg} handleClock={handleClock} history={history} />
         )}
         {activeMenu === 'profile' && (
           <ProfileView user={user} profileTab={profileTab} setProfileTab={setProfileTab} handleStartEdit={handleStartEdit} />
@@ -702,6 +728,7 @@ function App() {
       {showRequestModal && <RequestModal user={user} selectedRequestType={selectedRequestType} requestFormData={requestFormData} setRequestFormData={setRequestFormData} handleRequestSubmit={handleRequestSubmit} isSubmittingRequest={isSubmittingRequest} onClose={() => setShowRequestModal(false)} />}
       {isEditingEmployee && <EditEmployeeModal selectedEmployee={selectedEmployee} employees={employees} editEmployeeData={editEmployeeData} setEditEmployeeData={setEditEmployeeData} handleSaveEmployee={handleSaveEmployee} handleDeleteEmployee={handleDeleteEmployee} handleAddTeamMember={handleAddTeamMember} handleRemoveTeamMember={handleRemoveTeamMember} isSavingEmployee={isSavingEmployee} onClose={() => setIsEditingEmployee(false)} />}
       {showOfficeModal && <OfficeSettingsModal editOfficeData={editOfficeData} setEditOfficeData={setEditOfficeData} setOfficeSettings={setOfficeSettings} workDays={workDays} setWorkDays={setWorkDays} setStatusMsg={setStatusMsg} onClose={() => setShowOfficeModal(false)} />}
+      {showTimeModal && <AttendanceTimeModal editOfficeData={editOfficeData} setEditOfficeData={setEditOfficeData} setOfficeSettings={setOfficeSettings} setStatusMsg={setStatusMsg} onClose={() => setShowTimeModal(false)} />}
       {isEditingPayroll && <EditPayrollModal editPayrollData={editPayrollData} setEditPayrollData={setEditPayrollData} handleSavePayroll={handleSavePayroll} isSavingPayroll={isSavingPayroll} onClose={() => setIsEditingPayroll(false)} />}
 
       <footer className="dashboard-footer">© 2026 DayHR Technology</footer>

@@ -23,17 +23,33 @@ router.post('/attendance/submit', authMiddleware, async (req, res) => {
   try {
     const { lat, lng, type, image } = req.body;
     const clockType = type || 'clock_in';
+    const office = await getDynamicSetting('office_location', { lat: -6.1528, lng: 106.7909, radius: 100, clockInStart: '07:00', clockInLimit: '08:00', lateThreshold: '09:15', clockOutMin: '17:00' });
     const now = new Date();
     const jakartaTime = now.toLocaleString('en-US', { timeZone: 'Asia/Jakarta', hour12: false });
     const timePart = jakartaTime.split(', ')[1];
+
     if (timePart && clockType === 'clock_in') {
       const [h, m] = timePart.split(':').map(Number);
-      if (h < 7) return res.status(400).json({ success: false, message: `Absensi Gagal: Jam operasional absen masuk dimulai pukul 07:00 WIB. (Sekarang ${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} WIB)` });
+      const currentMinutes = h * 60 + m;
+      const [startH, startM] = (office.clockInStart || '07:00').split(':').map(Number);
+      const startMinutes = startH * 60 + startM;
+      if (currentMinutes < startMinutes) {
+        return res.status(400).json({ success: false, message: `Absensi Gagal: Jam operasional absen masuk dimulai pukul ${office.clockInStart || '07:00'} WIB. (Sekarang ${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} WIB)` });
+      }
     }
+
+    if (timePart && clockType === 'clock_out') {
+      const [h, m] = timePart.split(':').map(Number);
+      const currentMinutes = h * 60 + m;
+      const [outMinH, outMinM] = (office.clockOutMin || '17:00').split(':').map(Number);
+      const outMinMinutes = outMinH * 60 + outMinM;
+      if (currentMinutes < outMinMinutes) {
+        return res.status(400).json({ success: false, message: `Absensi Gagal: Jam operasional absen pulang dimulai pukul ${office.clockOutMin || '17:00'} WIB. (Sekarang ${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} WIB)` });
+      }
+    }
+
     if (lat === undefined || lng === undefined) return res.status(400).json({ success: false, message: 'Koordinat GPS diperlukan.' });
     if (type && !['clock_in', 'clock_out'].includes(type)) return res.status(400).json({ success: false, message: 'Tipe absensi tidak valid.' });
-
-    const office = await getDynamicSetting('office_location', { lat: -6.1528, lng: 106.7909, radius: 100 });
     const distance = calculateDistance(Number(lat), Number(lng), Number(office.lat), Number(office.lng));
     const allowedRadius = Number(office.radius || 100);
 
@@ -90,7 +106,9 @@ router.get('/attendance/summary/today', authMiddleware, async (req, res) => {
     const isBefore7PM = new Date().getHours() < 19;
     const presentCount = Object.values(usersAttendance).filter(u => u.in && (u.out || isBefore7PM)).length;
 
-    const lateThresholdMinutes = 9 * 60 + 15;
+    const office = await getDynamicSetting('office_location', { lat: -6.1528, lng: 106.7909, radius: 100, clockInStart: '07:00', clockInLimit: '08:00', lateThreshold: '09:15', clockOutMin: '17:00' });
+    const [lateH, lateM] = (office.lateThreshold || '09:15').split(':').map(Number);
+    const lateThresholdMinutes = lateH * 60 + lateM;
     const userFirstIn = {};
     todayRecords.forEach(r => {
       if (r.type === 'clock_in') {
@@ -121,7 +139,9 @@ router.get('/attendance/summary/monthly', authMiddleware, requireRole('admin', '
     const end = new Date(year, parseInt(month) + 1, 0, 23, 59, 59);
     const users = await User.findAll({ order: [['name', 'ASC']] });
     const attendance = await Attendance.findAll({ where: { timestamp: { [Op.between]: [start, end] } } });
-    const lateThresholdMinutes = 9 * 60 + 15;
+    const office = await getDynamicSetting('office_location', { lat: -6.1528, lng: 106.7909, radius: 100, clockInStart: '07:00', clockInLimit: '08:00', lateThreshold: '09:15', clockOutMin: '17:00' });
+    const [lateH, lateM] = (office.lateThreshold || '09:15').split(':').map(Number);
+    const lateThresholdMinutes = lateH * 60 + lateM;
 
     const attendanceMap = {};
     attendance.forEach(a => {
@@ -178,7 +198,9 @@ router.get('/attendance/summary/daily', authMiddleware, requireRole('admin', 'ma
     const endOfDay = new Date(`${dateStr}T23:59:59.999+07:00`);
     const users = await User.findAll({ attributes: ['id', 'name', 'email', 'position', 'department', 'profilePicture', 'role'], order: [['name', 'ASC']] });
     const attendance = await Attendance.findAll({ where: { timestamp: { [Op.between]: [startOfDay, endOfDay] } } });
-    const lateThresholdMinutes = 9 * 60 + 15;
+    const office = await getDynamicSetting('office_location', { lat: -6.1528, lng: 106.7909, radius: 100, clockInStart: '07:00', clockInLimit: '08:00', lateThreshold: '09:15', clockOutMin: '17:00' });
+    const [lateH, lateM] = (office.lateThreshold || '09:15').split(':').map(Number);
+    const lateThresholdMinutes = lateH * 60 + lateM;
 
     const attendanceMap = {};
     attendance.forEach(a => { const email = a.email.toLowerCase(); if (!attendanceMap[email]) attendanceMap[email] = []; attendanceMap[email].push(a); });
