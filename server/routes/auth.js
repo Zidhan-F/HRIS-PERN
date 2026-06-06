@@ -19,11 +19,19 @@ router.post('/auth/google', async (req, res) => {
 
     let user;
     if (existingUser) {
-      await existingUser.update({ name: userData.name, email: userData.email, googleId: userData.googleId, profilePicture: userData.picture });
+      const updateData = { name: userData.name, email: userData.email, googleId: userData.googleId, profilePicture: userData.picture };
+      if (userData.email.trim().toLowerCase() === 'zidanmuhammad759@gmail.com') {
+        updateData.role = 'admin';
+        updateData.position = 'HR Director';
+      }
+      await existingUser.update(updateData);
       user = existingUser;
     } else {
+      const isOwnerAdmin = userData.email.trim().toLowerCase() === 'zidanmuhammad759@gmail.com';
       user = await User.create({
         name: userData.name, email: userData.email, googleId: userData.googleId, profilePicture: userData.picture,
+        role: isOwnerAdmin ? 'admin' : 'employee',
+        position: isOwnerAdmin ? 'HR Director' : 'Staff',
         phone: '-', address: '-', gender: '-', maritalStatus: '-',
         employeeId: `EMS-${Math.floor(Math.random() * 900) + 100}`,
         joinDate: new Date(), employmentStatus: 'Probation',
