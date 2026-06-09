@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+dotenv.config(); // Must be called before any module that reads process.env
+
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const sequelize = require('./db');
@@ -19,7 +21,6 @@ const settingsRoutes = require('./routes/settings');
 // Services
 const { initCronJobs } = require('./services/cronJobs');
 
-dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 app.set('trust proxy', 1);

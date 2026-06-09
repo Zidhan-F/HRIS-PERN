@@ -3,12 +3,8 @@ import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
-const DEV_GOOGLE_CLIENT_ID = '512607156379-ci8nrql6q958grjma8o1o3d3fkoknfsn.apps.googleusercontent.com';
-const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || (import.meta.env.DEV ? DEV_GOOGLE_CLIENT_ID : '');
-
-if (!clientId) {
-  throw new Error('VITE_GOOGLE_CLIENT_ID belum dikonfigurasi. Set env ini di Vercel lalu redeploy.');
-}
+const GOOGLE_CLIENT_ID = '512607156379-ci8nrql6q958grjma8o1o3d3fkoknfsn.apps.googleusercontent.com';
+const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID;
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
